@@ -178,7 +178,7 @@ class TestReporter {
     const conclusion = isFailed ? 'failure' : 'success'
     const icon = isFailed ? Icon.fail : Icon.success
 
-    const resultSummary = results.map(tr => getResultSummary(tr)).join(' -- ')
+    const resultSummary = results.map(tr => `${tr.passed} pass, ${tr.failed} fail, ${tr.skipped} skip`).join(' -- ')
 
     core.info(`Updating check run conclusion (${conclusion}) and output`)
     const resp = await this.octokit.rest.checks.update({
