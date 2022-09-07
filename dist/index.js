@@ -390,6 +390,7 @@ class TestReporter {
             const { listSuites, listTests, onlySummary } = this;
             const baseUrl = createResp.data.html_url;
             const summary = (0, get_report_1.getReport)(results, { listSuites, listTests, baseUrl, onlySummary });
+            core.info('Summary: ' + summary);
             core.info('Creating annotations');
             const annotations = (0, get_annotations_1.getAnnotations)(results, this.maxAnnotations);
             const isFailed = results.some(tr => tr.result === 'failed');
@@ -1583,7 +1584,18 @@ function getTestRunsReport(testRuns, options) {
         const suitesReports = testRuns.map((tr, i) => getSuitesReport(tr, i, options)).flat();
         sections.push(...suitesReports);
     }
+    else {
+        const suitesSummaries = testRuns.map(tr => getHeadingLine2(tr)).flat();
+        sections.push(...suitesSummaries);
+    }
     return sections;
+}
+function getHeadingLine2(tr) {
+    const time = (0, markdown_utils_1.formatTime)(tr.time);
+    const headingLine2 = tr.tests > 0
+        ? `**${tr.tests}** tests were completed in **${time}** with **${tr.passed}** passed, **${tr.failed}** failed and **${tr.skipped}** skipped.`
+        : 'No tests found';
+    return headingLine2;
 }
 function getSuitesReport(tr, runIndex, options) {
     const sections = [];
@@ -1591,10 +1603,7 @@ function getSuitesReport(tr, runIndex, options) {
     const nameLink = `<a id="${trSlug.id}" href="${options.baseUrl + trSlug.link}">${tr.path}</a>`;
     const icon = getResultIcon(tr.result);
     sections.push(`## ${icon}\xa0${nameLink}`);
-    const time = (0, markdown_utils_1.formatTime)(tr.time);
-    const headingLine2 = tr.tests > 0
-        ? `**${tr.tests}** tests were completed in **${time}** with **${tr.passed}** passed, **${tr.failed}** failed and **${tr.skipped}** skipped.`
-        : 'No tests found';
+    const headingLine2 = getHeadingLine2(tr);
     sections.push(headingLine2);
     const suites = options.listSuites === 'failed' ? tr.failedSuites : tr.suites;
     if (suites.length > 0) {
