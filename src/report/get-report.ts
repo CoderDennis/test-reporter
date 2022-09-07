@@ -159,7 +159,20 @@ function getTestRunsReport(testRuns: TestRunResult[], options: ReportOptions): s
     const suitesReports = testRuns.map((tr, i) => getSuitesReport(tr, i, options)).flat()
     sections.push(...suitesReports)
   }
+  else {
+    const suitesSummaries = testRuns.map((tr, i) => getHeadingLine2(tr)).flat()
+    sections.push(...suitesSummaries)
+  }
   return sections
+}
+
+function getHeadingLine2(tr: TestRunResult): string {
+  const time = formatTime(tr.time)
+  const headingLine2 =
+    tr.tests > 0
+      ? `**${tr.tests}** tests were completed in **${time}** with **${tr.passed}** passed, **${tr.failed}** failed and **${tr.skipped}** skipped.`
+      : 'No tests found'
+  return headingLine2
 }
 
 function getSuitesReport(tr: TestRunResult, runIndex: number, options: ReportOptions): string[] {
@@ -170,11 +183,7 @@ function getSuitesReport(tr: TestRunResult, runIndex: number, options: ReportOpt
   const icon = getResultIcon(tr.result)
   sections.push(`## ${icon}\xa0${nameLink}`)
 
-  const time = formatTime(tr.time)
-  const headingLine2 =
-    tr.tests > 0
-      ? `**${tr.tests}** tests were completed in **${time}** with **${tr.passed}** passed, **${tr.failed}** failed and **${tr.skipped}** skipped.`
-      : 'No tests found'
+  const headingLine2 = getHeadingLine2(tr)
   sections.push(headingLine2)
 
   const suites = options.listSuites === 'failed' ? tr.failedSuites : tr.suites
