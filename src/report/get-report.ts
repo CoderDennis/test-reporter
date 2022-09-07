@@ -160,7 +160,7 @@ function getTestRunsReport(testRuns: TestRunResult[], options: ReportOptions): s
     sections.push(...suitesReports)
   }
   else {
-    const suitesSummaries = testRuns.map((tr, i) => getHeadingLine2(tr)).flat()
+    const suitesSummaries = testRuns.map(tr => getHeadingLine2(tr)).flat()
     sections.push(...suitesSummaries)
   }
   return sections
