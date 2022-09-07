@@ -158,14 +158,11 @@ function getTestRunsReport(testRuns: TestRunResult[], options: ReportOptions): s
   if (options.onlySummary === false) {
     const suitesReports = testRuns.map((tr, i) => getSuitesReport(tr, i, options)).flat()
     sections.push(...suitesReports)
-  } else {
-    const suitesSummaries = testRuns.map(tr => getHeadingLine2(tr)).flat()
-    sections.push(...suitesSummaries)
   }
   return sections
 }
 
-function getHeadingLine2(tr: TestRunResult): string {
+export function getResultSummary(tr: TestRunResult): string {
   const time = formatTime(tr.time)
   const headingLine2 =
     tr.tests > 0
@@ -182,7 +179,7 @@ function getSuitesReport(tr: TestRunResult, runIndex: number, options: ReportOpt
   const icon = getResultIcon(tr.result)
   sections.push(`## ${icon}\xa0${nameLink}`)
 
-  const headingLine2 = getHeadingLine2(tr)
+  const headingLine2 = getResultSummary(tr)
   sections.push(headingLine2)
 
   const suites = options.listSuites === 'failed' ? tr.failedSuites : tr.suites

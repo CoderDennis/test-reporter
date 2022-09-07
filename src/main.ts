@@ -8,7 +8,7 @@ import {FileContent} from './input-providers/input-provider'
 import {ParseOptions, TestParser} from './test-parser'
 import {TestRunResult} from './test-results'
 import {getAnnotations} from './report/get-annotations'
-import {getReport} from './report/get-report'
+import {getReport, getResultSummary} from './report/get-report'
 
 import {DartJsonParser} from './parsers/dart-json/dart-json-parser'
 import {DotnetTrxParser} from './parsers/dotnet-trx/dotnet-trx-parser'
@@ -171,8 +171,6 @@ class TestReporter {
     const baseUrl = createResp.data.html_url as string
     const summary = getReport(results, {listSuites, listTests, baseUrl, onlySummary})
 
-    core.info('Summary: ' + summary)
-
     core.info('Creating annotations')
     const annotations = getAnnotations(results, this.maxAnnotations)
 
@@ -180,13 +178,15 @@ class TestReporter {
     const conclusion = isFailed ? 'failure' : 'success'
     const icon = isFailed ? Icon.fail : Icon.success
 
+    const resultSummary = results.map(tr => getResultSummary(tr)).join(' -- ')
+
     core.info(`Updating check run conclusion (${conclusion}) and output`)
     const resp = await this.octokit.rest.checks.update({
       check_run_id: createResp.data.id,
       conclusion,
       status: 'completed',
       output: {
-        title: `${name} ${icon}`,
+        title: `${resultSummary} ${name} ${icon}`,
         summary,
         annotations
       },

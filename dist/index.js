@@ -390,15 +390,15 @@ class TestReporter {
             const { listSuites, listTests, onlySummary } = this;
             const baseUrl = createResp.data.html_url;
             const summary = (0, get_report_1.getReport)(results, { listSuites, listTests, baseUrl, onlySummary });
-            core.info('Summary: ' + summary);
             core.info('Creating annotations');
             const annotations = (0, get_annotations_1.getAnnotations)(results, this.maxAnnotations);
             const isFailed = results.some(tr => tr.result === 'failed');
             const conclusion = isFailed ? 'failure' : 'success';
             const icon = isFailed ? markdown_utils_1.Icon.fail : markdown_utils_1.Icon.success;
+            const resultSummary = results.map(tr => (0, get_report_1.getResultSummary)(tr)).join(" -- ");
             core.info(`Updating check run conclusion (${conclusion}) and output`);
             const resp = yield this.octokit.rest.checks.update(Object.assign({ check_run_id: createResp.data.id, conclusion, status: 'completed', output: {
-                    title: `${name} ${icon}`,
+                    title: `${resultSummary} ${name} ${icon}`,
                     summary,
                     annotations
                 } }, github.context.repo));
@@ -1457,7 +1457,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.getReport = void 0;
+exports.getResultSummary = exports.getReport = void 0;
 const core = __importStar(__nccwpck_require__(2186));
 const markdown_utils_1 = __nccwpck_require__(6482);
 const node_utils_1 = __nccwpck_require__(5824);
@@ -1584,26 +1584,23 @@ function getTestRunsReport(testRuns, options) {
         const suitesReports = testRuns.map((tr, i) => getSuitesReport(tr, i, options)).flat();
         sections.push(...suitesReports);
     }
-    else {
-        const suitesSummaries = testRuns.map(tr => getHeadingLine2(tr)).flat();
-        sections.push(...suitesSummaries);
-    }
     return sections;
 }
-function getHeadingLine2(tr) {
+function getResultSummary(tr) {
     const time = (0, markdown_utils_1.formatTime)(tr.time);
     const headingLine2 = tr.tests > 0
         ? `**${tr.tests}** tests were completed in **${time}** with **${tr.passed}** passed, **${tr.failed}** failed and **${tr.skipped}** skipped.`
         : 'No tests found';
     return headingLine2;
 }
+exports.getResultSummary = getResultSummary;
 function getSuitesReport(tr, runIndex, options) {
     const sections = [];
     const trSlug = makeRunSlug(runIndex);
     const nameLink = `<a id="${trSlug.id}" href="${options.baseUrl + trSlug.link}">${tr.path}</a>`;
     const icon = getResultIcon(tr.result);
     sections.push(`## ${icon}\xa0${nameLink}`);
-    const headingLine2 = getHeadingLine2(tr);
+    const headingLine2 = getResultSummary(tr);
     sections.push(headingLine2);
     const suites = options.listSuites === 'failed' ? tr.failedSuites : tr.suites;
     if (suites.length > 0) {
