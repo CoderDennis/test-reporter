@@ -158,8 +158,7 @@ function getTestRunsReport(testRuns: TestRunResult[], options: ReportOptions): s
   if (options.onlySummary === false) {
     const suitesReports = testRuns.map((tr, i) => getSuitesReport(tr, i, options)).flat()
     sections.push(...suitesReports)
-  }
-  else {
+  } else {
     const suitesSummaries = testRuns.map(tr => getHeadingLine2(tr)).flat()
     sections.push(...suitesSummaries)
   }
