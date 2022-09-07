@@ -395,10 +395,12 @@ class TestReporter {
             const isFailed = results.some(tr => tr.result === 'failed');
             const conclusion = isFailed ? 'failure' : 'success';
             const icon = isFailed ? markdown_utils_1.Icon.fail : markdown_utils_1.Icon.success;
-            const resultSummary = results.map(tr => `${tr.passed} passed, ${tr.failed} failed, ${tr.skipped} skipped`).join(' — ');
+            const resultSummary = results
+                .map(tr => `${tr.passed} passed, ${tr.failed} failed, ${tr.skipped} skipped`)
+                .join(' — ');
             core.info(`Updating check run conclusion (${conclusion}) and output`);
             const resp = yield this.octokit.rest.checks.update(Object.assign({ check_run_id: createResp.data.id, conclusion, status: 'completed', output: {
-                    title: `${resultSummary} ${name} ${icon}`,
+                    title: `${resultSummary} — ${name} ${icon}`,
                     summary,
                     annotations
                 } }, github.context.repo));

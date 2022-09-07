@@ -188,7 +188,7 @@ class TestReporter {
       conclusion,
       status: 'completed',
       output: {
-        title: `${resultSummary} ${name} ${icon}`,
+        title: `${resultSummary} — ${name} ${icon}`,
         summary,
         annotations
       },
